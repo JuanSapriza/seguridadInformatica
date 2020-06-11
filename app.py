@@ -5,6 +5,8 @@ import encryptionFwk as cript
 # ACCEDER AL PROGRAMA
 # masterKey = master.masterAccess()
 
+# ESTE ES UN MENSAJE DE PRUEBA!
+
 masterKey = b"estaEsLaMaster151719212325272931"
 
 user.generateTable(masterKey)
