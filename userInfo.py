@@ -88,7 +88,7 @@ def authorization() -> (User, bool) :
                 indexEnd = sFile.find(userListOrder[userListOrder.index(prefixIndex)+1],indexStart)
                 index = int.from_bytes(sFile[indexStart:indexEnd],'big')
                 # CREAR EL USUARIO PARA DEVOLVER
-                user = User(userName=userName, AESkey=c.deriveAESkey(str(inPsw), str(salt)), index=index)
+                user = User(userName=userName, AESkey=c.deriveAESkey(str(inPsw.decode(encoding)), str(salt)), index=index)
                 return user, True
             else:
                 print("> Contraseña incorrecta!")
@@ -157,7 +157,6 @@ def generateUser(userName: str, password: str, role: str):
     os.makedirs(os.path.dirname(getUserFileAddr(user)), exist_ok=True)
     with open(getUserFileAddr(user), 'wb') as userFile:
         userFile.write(getUserInfo(user))
-    g.debug()
     c.encryptFile(getUserFileAddr(user), c.deriveAESkey(password, str(salt)))
 
 # Parsea NOMBRE, SALT, HPSW, CLAVE PUBLICA e INDICE para escribir en la lista

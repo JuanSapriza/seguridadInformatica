@@ -12,12 +12,8 @@ elif hashingAlgorith == sha3 :
     from Crypto.Hash import SHA3_512 as hash
 
 
-
 def encryptFile( file: str, key: bytes) -> bool:
     try:
-        g.debug("A ENCRIPTAR " + file )
-        g.debug( b"con key " + key )
-        g.pause()
         with open(file, "rb") as file_in:
             cipher = AES.new(key, AES.MODE_EAX)
             ciphertext, tag = cipher.encrypt_and_digest(file_in.read())  # @ToDo: Considerar utilizar MAC tag
@@ -30,9 +26,6 @@ def encryptFile( file: str, key: bytes) -> bool:
 
 def decryptFile( file: str, key: bytes ) -> bool:
     try:
-        g.debug("A DESENCRIPTAR " + file)
-        g.debug(b"con key " + key)
-        g.pause()
         with open(file,"rb") as file_in:
             nonce, tag, ciphertext = [file_in.read(x) for x in (16, 16, -1)]
         cipher = AES.new( key, AES.MODE_EAX, nonce )
