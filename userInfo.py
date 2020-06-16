@@ -214,11 +214,15 @@ def getInfoFromUserFile( user: User ) -> User:
         return None
     with open( userFile, 'rb') as file:
         file = file.read()
+    c.encryptFile(userFile, user.AESkey)
     lUser = user
     # OBTENCION DE ROL
     roleStart = file.find(prefixRole) + len(prefixRole)
     roleEnd = roleStart + file[roleStart:].find(lineEnd)
-    lUser.role = file[roleStart:roleEnd]
+    g.debug(roleStart)
+    g.debug(roleEnd)
+    g.pause()
+    lUser.role = file[roleStart:roleEnd].decode(encoding)
     # OBTENCION DE LA CLAVE PRIVADA
     prStart = file.find(prefixPrivate) + len(prefixPrivate)
     prEnd = prStart + file[prStart:].find(lineEnd)

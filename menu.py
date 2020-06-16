@@ -10,7 +10,7 @@ import userInfo as u
 def showMenu( user: u.User ) -> bool:
     #g.cls()
     print( "#### MENU PRINCIPAL ####" )
-    print("Usuario: " + str(user.index) +" > " + user.userName + " | " + str(user.role.decode(encoding)) )
+    print("Usuario: " + str(user.index) +" > " + user.userName + " | " + str(user.role) )
     print("   ¿Qué desea hacer? ")
     print(" 1. Encriptar Archivo")
     print(" 2. Desencriptar Archivo")
@@ -51,6 +51,7 @@ def encryptFile( user: u.User ):
 def decryptFile():
     print("DESENCRIPTAR")
     return False
+
 def newUser():
     print("USER")
     return False
