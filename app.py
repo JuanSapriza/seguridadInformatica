@@ -14,6 +14,8 @@ cript.decryptFile('ml_info.bin',cript.deriveAESkey("hola","chau"))
 
 '''
 
+# JOACO PUTO
+
 print(" #### INICIANDO SISTEMA ####")
 u.generateTable()
 g.cls()

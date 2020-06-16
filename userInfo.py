@@ -4,7 +4,7 @@ import encryptionFwk as c
 import os
 import getpass
 import gral as g
-encoding = 'utf-8'
+from gral import encoding
 
 # USER LIST
 userList = "users.bin"
@@ -57,7 +57,7 @@ def authorization() -> (User, bool) :
             return None, False
         userPos = sFile.find(userName.encode(encoding))
 
-        if userPos < 0:
+        if userPos < 0 or sFile[userPos-len(prefixUserName):userPos] != prefixUserName:
             print("> Usuario no existe!")
             continue
 
@@ -216,11 +216,11 @@ def getInfoFromUserFile( user: User ) -> User:
         file = file.read()
     lUser = user
     # OBTENCION DE ROL
-    roleStart = file.find(prefixRole)
+    roleStart = file.find(prefixRole) + len(prefixRole)
     roleEnd = roleStart + file[roleStart:].find(lineEnd)
     lUser.role = file[roleStart:roleEnd]
     # OBTENCION DE LA CLAVE PRIVADA
-    prStart = file.find(prefixPrivate)
+    prStart = file.find(prefixPrivate) + len(prefixPrivate)
     prEnd = prStart + file[prStart:].find(lineEnd)
     lUser.private = file[prStart:prEnd]
     return lUser

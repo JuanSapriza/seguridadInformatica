@@ -1,4 +1,5 @@
 import gral as g
+from gral import encoding
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import encryptionFwk as c
@@ -9,10 +10,7 @@ import userInfo as u
 def showMenu( user: u.User ) -> bool:
     #g.cls()
     print( "#### MENU PRINCIPAL ####" )
-    print(user.index)
-    print(user.userName)
-    print(user.role)
-    #print("Usuario: " + str(user.index) +" > " + user.userName + " | " + user.role )
+    print("Usuario: " + str(user.index) +" > " + user.userName + " | " + str(user.role.decode(encoding)) )
     print("   ¿Qué desea hacer? ")
     print(" 1. Encriptar Archivo")
     print(" 2. Desencriptar Archivo")
