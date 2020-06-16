@@ -1,7 +1,7 @@
 from Crypto.Hash import SHA256 as hash
 from Crypto.Random import random
 
-# @ToDo: COMO HACER PARA QUE NO NOS BORREN EL ASTERKEY.BIN???
+# @ToDo: DEPRECATED!
 
 def masterAccess():
     generateMaster()
@@ -54,15 +54,3 @@ def checkMasterKey( input: str ):
     except FileNotFoundError:
         print("ERROR!")
 
-def retriesLogic(reset: bool):
-    try:
-        retriesLogic.count += 1
-    except:
-        retriesLogic.count = 0
-    if reset:
-        retriesLogic.count = 0
-        return True
-    if retriesLogic.count == 3:
-        retriesLogic.count = 0
-        return False
-    return True

@@ -1,47 +1,40 @@
-import masterKey as master
-import userInfo as user
+import userInfo as u
+import menu as m
+import gral as g
+
+
+'''
+
 import encryptionFwk as cript
 
-# ACCEDER AL PROGRAMA
-# masterKey = master.masterAccess()
+g.pause()
+cript.encryptFile('ml_info.bin', cript.deriveAESkey("hola","chau"))
+g.pause()
+cript.decryptFile('ml_info.bin',cript.deriveAESkey("hola","chau"))
 
-# ESTE ES UN MENSAJE DE PRUEBA!
+'''
 
-masterKey = b"estaEsLaMaster151719212325272931"
+print(" #### INICIANDO SISTEMA ####")
+u.generateTable()
+g.cls()
 
-user.generateTable(masterKey)
+# CONTROL DE ACCESO
+(user, valid) = u.authorization()
+if not valid:
+    quit()
+g.cls()
+
+user = u.getInfoFromUserFile( user )
+if user is None:
+    print("> MANEJAR ERROR, NO SE PUDO CARGAR LA INFO DEL USUARIO")
+    quit()
+
+# MENU PPAL
 while True:
-    if user.authorization(masterKey):
+    if m.showMenu( user ):
         break
+g.cls()
 
+print( " CHAU :D ")
 
-
-
-#user.addUser(masterKey)
-
-#cript.decryptFile('users.bin',masterKey)
-'''
-file = open("archivo.bin","wb")
-file.write(b"hola esto es una prueb")
-file.close()
-
-file = open("archivo.bin","rb")
-print("Inicial")
-print(file.read())
-file.close()
-
-cript.encryptFile("archivo.bin", b"estaEsLaMaster151719212325272931" )
-
-file = open("archivo.bin","rb")
-print("Encriptado")
-print(file.read())
-file.close()
-
-cript.decryptFile("archivo.bin", b"estaEsLaMaster151719212325272931")
-
-file = open("archivo.bin","rb")
-print("Final")
-print(file.read())
-file.close()
-'''
-
+#'''
