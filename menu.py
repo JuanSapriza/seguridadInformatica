@@ -4,8 +4,8 @@ from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import encryptionFwk as c
 import userInfo as u
-
-
+from userInfo import addUser
+import os
 
 def showMenu( user: u.User ) -> bool:
     #g.cls()
@@ -42,9 +42,16 @@ def encryptFile( user: u.User ):
     fileKey = c.getRandomAESKey()
     c.encryptFile( fileName, fileKey )
 
-    publicKey = u.getUserListLine( user.index )
+    # GENERAR EL ARCHIVO CON LA CLAVE SIMETRICA ENCRIPTADA CON MI PUBLICA
+    ownPublicKey = u.getUserListLine( user.index)[2]
+    encryptedKey = c.encryptKey( fileKey, ownPublicKey )
 
-    print( publicKey )
+    outputFile = u.getUserFileAddr(user) + user.userName + "_" + fileName
+    os.makedirs(os.path.dirname(outputFile), exist_ok=True)
+    with open(outputFile, 'wb') as outFile:
+        outFile.write(encryptedKey)
+
+
 
     return
 
@@ -52,6 +59,6 @@ def decryptFile():
     print("DESENCRIPTAR")
     return False
 
-def newUser():
-    print("USER")
+def newUser( user: u.User ): #toma un parametro solo por compatibilidad
+    addUser()
     return False
