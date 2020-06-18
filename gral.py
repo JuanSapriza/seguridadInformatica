@@ -1,6 +1,8 @@
 
 import os
 
+encoding = 'utf-8'
+
 def cls():
     None
     #os.system('cls' if os.name == 'nt' else 'clear')

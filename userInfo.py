@@ -4,7 +4,7 @@ import encryptionFwk as c
 import os
 import getpass
 import gral as g
-encoding = 'utf-8'
+from gral import encoding
 
 # USER LIST
 userList = "users.bin"
@@ -18,7 +18,7 @@ prefixPublic = b"<PU>"
 userEnd = b"<\n"
 lineEnd = b"\n"
 prefixes = (prefixIndex,prefixUserName,prefixSalt,prefixPassWord,prefixRole,prefixPrivate,prefixPublic)
-userListOrder = (prefixUserName,prefixSalt,prefixPassWord,prefixPublic,prefixIndex,userEnd)
+userListOrder = (prefixUserName,prefixSalt,prefixPassWord,prefixRole,prefixPublic,prefixIndex,userEnd)
 userInfoOrder = (prefixIndex, prefixUserName,prefixRole,prefixPrivate,lineEnd)
 
 # USER INFO
@@ -57,7 +57,7 @@ def authorization() -> (User, bool) :
             return None, False
         userPos = sFile.find(userName.encode(encoding))
 
-        if userPos < 0:
+        if userPos < 0 or sFile[userPos-len(prefixUserName):userPos] != prefixUserName:
             print("> Usuario no existe!")
             continue
 
@@ -84,7 +84,7 @@ def authorization() -> (User, bool) :
                 print("ACCESO GARANTIZADO")
                 retriesLogic(True)
                 # OBTENER EL INDICE DEL USUARIO
-                indexStart = sFile.find(prefixIndex,userPos) + len(prefixPassWord)
+                indexStart = sFile.find(prefixIndex,userPos) + len(prefixIndex)
                 indexEnd = sFile.find(userListOrder[userListOrder.index(prefixIndex)+1],indexStart)
                 index = int.from_bytes(sFile[indexStart:indexEnd],'big')
                 # CREAR EL USUARIO PARA DEVOLVER
@@ -118,8 +118,8 @@ def addUser():
 
     # Ingreso de Contraseña
     while True:
-        password = input("Ingrese contraseña: ")
-        password2 = input("Reingrese contraseña: ")
+        password = getpass.getpass("Ingrese contraseña: ")
+        password2 = getpass.getpass("Reingrese contraseña: ")
         if password != password2:
             print(" > Contraseñas no coinciden!")
             continue
@@ -147,9 +147,7 @@ def generateUser(userName: str, password: str, role: str):
 
     # AGREGAR EL NUEVO USUARIO A LA LISTA DE USUARIOS
     with  open(userList, "rb+") as listFile:
-        lines = 0  # obtener el numero de usuario
-        for line in listFile:
-            lines += 1
+        lines = listFile.read().count(prefixIndex)+1  # obtener el numero de usuario
         user.index = lines
         listFile.write(getuserLine(user))
 
@@ -164,28 +162,31 @@ def getuserLine(user: User) -> bytes:
     return prefixUserName + user.userName.encode(encoding) \
            + prefixSalt + user.salt \
            + prefixPassWord + user.hPsw \
+           + prefixRole + user.role.encode(encoding) \
            + prefixPublic + user.public \
            + prefixIndex + user.index.to_bytes(2, 'big') \
            + userEnd
 
-# Dado un indice, retorna el nombre, rol y clave publica de dicho usuario
-def getUserListLine( index: int ) -> (str, str, bytes): #ESTA FUNCION DEVUELVE TO DO VACIO!!
+# Dado un indice, retorna el nombre, rol y clave publica de dicho usuario en la lista
+def getUserListLine( index: int ) -> (str, str, bytes):
     with open(userList,'rb') as file:
         sList = file.read()
     uIndex = 0
+    nextIndex = 0
     for i in range(index):
-        uIndex = sList.find(prefixIndex)
+        uIndex = sList.find(prefixIndex,nextIndex)
+        nextIndex = uIndex + len(prefixIndex)
     # OBTENER NOMBRE DE USUARIO
-    userNameStart = sList.rfind(prefixUserName,0,uIndex)
-    userNameEnd = userNameStart + sList.find(userListOrder[userListOrder.index(prefixUserName)+1],userNameStart,uIndex)
-    userName = sList[userNameStart:userNameEnd]
+    userNameStart = sList.rfind(prefixUserName,0,uIndex) + len(prefixUserName)
+    userNameEnd = sList.find(userListOrder[userListOrder.index(prefixUserName)+1],userNameStart)
+    userName = sList[userNameStart:userNameEnd].decode(encoding)
     # OBTENER ROL
-    roleStart = sList.rfind(prefixRole, 0, uIndex)
-    roleEnd = roleStart + sList.find(userListOrder[userListOrder.index(prefixRole)+1], roleStart, uIndex)
-    role = sList[roleStart:roleEnd]
+    roleStart = sList.rfind(prefixRole, 0, uIndex) + len(prefixRole)
+    roleEnd = sList.find(userListOrder[userListOrder.index(prefixRole)+1], roleStart)
+    role = sList[roleStart:roleEnd].decode(encoding)
     # OBTENER CLAVE PUBLICA
-    puStart = sList.rfind(prefixPublic, 0, uIndex)
-    puEnd = puStart + sList.find(userListOrder[userListOrder.index(prefixPublic)+1],puStart, uIndex)
+    puStart = sList.rfind(prefixPublic, 0, uIndex) + len(prefixPublic)
+    puEnd = sList.find(userListOrder[userListOrder.index(prefixPublic)+1],puStart)
     public = sList[puStart:puEnd]
 
     return userName, role, public
@@ -214,13 +215,14 @@ def getInfoFromUserFile( user: User ) -> User:
         return None
     with open( userFile, 'rb') as file:
         file = file.read()
+    c.encryptFile(userFile, user.AESkey)
     lUser = user
     # OBTENCION DE ROL
-    roleStart = file.find(prefixRole)
+    roleStart = file.find(prefixRole) + len(prefixRole)
     roleEnd = roleStart + file[roleStart:].find(lineEnd)
-    lUser.role = file[roleStart:roleEnd]
+    lUser.role = file[roleStart:roleEnd].decode(encoding)
     # OBTENCION DE LA CLAVE PRIVADA
-    prStart = file.find(prefixPrivate)
+    prStart = file.find(prefixPrivate) + len(prefixPrivate)
     prEnd = prStart + file[prStart:].find(lineEnd)
     lUser.private = file[prStart:prEnd]
     return lUser
