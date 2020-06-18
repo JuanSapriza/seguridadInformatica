@@ -30,7 +30,7 @@ def function2Perfom( index: int ):
         3 :newUser,
     }
     return switch.get(index,False)
-
+# TODO: que se puede encriptar un .txt
 def encryptFile( user: u.User ):
     g.cls()
     print(" #### ENCRIPTAR ARCHIVO ####")
