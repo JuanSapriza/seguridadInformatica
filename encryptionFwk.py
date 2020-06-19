@@ -1,4 +1,5 @@
-from Crypto.Cipher import AES
+from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.PublicKey import RSA
 from Crypto.Protocol.KDF import scrypt
 from Crypto.Random import get_random_bytes
 import gral as g
@@ -51,6 +52,16 @@ def deriveAESkey(psw: str, salt: str) -> bytes:
 
 def getRandomAESKey() -> bytes:
     return get_random_bytes( max(AES.key_size))
+
+def encryptKey( key: bytes, public: bytes ) -> bytes:
+    cipher_key = RSA.importKey(public)
+    cipher_rsa = PKCS1_OAEP.new(cipher_key)
+    return cipher_rsa.encrypt(key)
+
+def decryptKey( key: bytes, private: bytes ) -> bytes:
+    cipher_key = RSA.importKey(private)
+    cipher_rsa = PKCS1_OAEP.new(cipher_key)
+    return cipher_rsa.decrypt(key)
 
 def hashPsw( psw: bytes, salt: bytes ) -> bytes:
     saltedPsw = salt + psw
