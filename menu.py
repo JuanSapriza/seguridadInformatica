@@ -29,8 +29,9 @@ def function2Perfom( index: int ):
         3 :newUser,
     }
     return switch.get(index,False)
-
-def encryptFile( user: User ):
+    
+# TODO: que se puede encriptar un .txt
+def encryptFile( user: u.User ):
     g.cls()
     print(" #### ENCRIPTAR ARCHIVO ####")
     # OBTENCION DEL ARCHIVO A ENCRIPTAR
