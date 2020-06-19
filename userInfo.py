@@ -19,8 +19,7 @@ userEnd = b"<\n"
 lineEnd = b"\n"
 prefixes = (prefixIndex,prefixUserName,prefixSalt,prefixPassWord,prefixRole,prefixPrivate,prefixPublic)
 userListOrder = (prefixUserName,prefixSalt,prefixPassWord,prefixRole,prefixPublic,prefixIndex,userEnd)
-userInfoOrder = (prefixIndex, prefixUserName,prefixRole,prefixPrivate,lineEnd)
-
+userInfoOrder = (prefixIndex, prefixUserName,prefixRole,prefixPrivate,userEnd)
 # USER INFO
 sufixUserInfo = "_info.bin"
 
@@ -95,6 +94,8 @@ def authorization() -> (User, bool) :
         print("ACCESO DENEGADO")
         return None, False
 
+
+
 ############## LISTA DE USUARIOS  ##############
 
 # En caso de que no haya una tabla, crearla
@@ -151,8 +152,9 @@ def generateUser(userName: str, password: str, role: str):
         user.index = lines
         listFile.write(getuserLine(user))
 
-    # CREAR LOS ARCHIVOS PROPIOS DE CADA USUARIO
+    # CREAR LOS ARCHIVOS Y CARPETS PROPIOS DE CADA USUARIO
     os.makedirs(os.path.dirname(getUserFileAddr(user)), exist_ok=True)
+    os.makedirs(os.path.dirname(getuserArchivesAddr(user)), exist_ok=True)
     with open(getUserFileAddr(user), 'wb') as userFile:
         userFile.write(getUserInfo(user))
     c.encryptFile(getUserFileAddr(user), c.deriveAESkey(password, str(salt)))
@@ -168,14 +170,19 @@ def getuserLine(user: User) -> bytes:
            + userEnd
 
 # Dado un indice, retorna el nombre, rol y clave publica de dicho usuario en la lista
-def getUserListLine( index: int ) -> (str, str, bytes):
+def getUserListLine( index: int ) -> (str, str, bytes, bool):
     with open(userList,'rb') as file:
         sList = file.read()
+    # ENCONTRAR EL USUARIO
     uIndex = 0
     nextIndex = 0
     for i in range(index):
         uIndex = sList.find(prefixIndex,nextIndex)
         nextIndex = uIndex + len(prefixIndex)
+    if sList.find(userEnd,uIndex)+len(userEnd) == len(sList):
+        lastUser = True
+    else:
+        lastUser = False
     # OBTENER NOMBRE DE USUARIO
     userNameStart = sList.rfind(prefixUserName,0,uIndex) + len(prefixUserName)
     userNameEnd = sList.find(userListOrder[userListOrder.index(prefixUserName)+1],userNameStart)
@@ -189,7 +196,9 @@ def getUserListLine( index: int ) -> (str, str, bytes):
     puEnd = sList.find(userListOrder[userListOrder.index(prefixPublic)+1],puStart)
     public = sList[puStart:puEnd]
 
-    return userName, role, public
+    return userName, role, public, lastUser
+
+
 
 ############# ARCHIVO PARTICULAR DE CADA USUARIO: #############
 
@@ -198,7 +207,7 @@ def getUserInfo(user: User) -> bytes:
     return prefixIndex + user.index.to_bytes(2, 'big') + lineEnd \
            + prefixUserName + user.userName.encode(encoding) + lineEnd \
            + prefixRole + user.role.encode(encoding) + lineEnd \
-           + prefixPrivate + user.private + lineEnd \
+           + prefixPrivate + user.private + userEnd \
 
 # Direccion donde se pueden almacenar archivos para el usuario
 def getUserAddr(user: User) -> str:
@@ -207,6 +216,9 @@ def getUserAddr(user: User) -> str:
 # Direccion y nombre del archivo personal del usuario
 def getUserFileAddr(user: User) -> str:
     return getUserAddr(user) + user.userName + sufixUserInfo
+
+def getuserArchivesAddr( user: User ) -> str:
+    return getUserAddr(user) + "archivos/"
 
 # Dado un usuario, devuelve el rol y clave privada, almacenado en su archivo personal
 def getInfoFromUserFile( user: User ) -> User:
@@ -219,13 +231,16 @@ def getInfoFromUserFile( user: User ) -> User:
     lUser = user
     # OBTENCION DE ROL
     roleStart = file.find(prefixRole) + len(prefixRole)
-    roleEnd = roleStart + file[roleStart:].find(lineEnd)
+    roleEnd = file.find(userInfoOrder[userInfoOrder.index(prefixRole)+1])
     lUser.role = file[roleStart:roleEnd].decode(encoding)
     # OBTENCION DE LA CLAVE PRIVADA
     prStart = file.find(prefixPrivate) + len(prefixPrivate)
-    prEnd = prStart + file[prStart:].find(lineEnd)
+    prEnd = file.find(userInfoOrder[userInfoOrder.index(prefixPrivate)+1])
     lUser.private = file[prStart:prEnd]
     return lUser
+
+
+
 
 ############## CONTROL DE CONTRASEÑAS #############
 
