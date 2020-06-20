@@ -1,6 +1,6 @@
 
 import os
-import signal
+import threading as t
 from time import sleep
 
 encoding = 'utf-8'

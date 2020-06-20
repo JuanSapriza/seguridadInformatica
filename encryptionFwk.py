@@ -30,7 +30,7 @@ def decryptFile( file: str, key: bytes ) -> bool:
         with open(file,"rb") as file_in:
             nonce, tag, ciphertext = [file_in.read(x) for x in (16, 16, -1)]
         cipher = AES.new( key, AES.MODE_EAX, nonce )
-        data = cipher.decrypt(ciphertext, tag)
+        data = cipher.decrypt(ciphertext) # ToDo considerar agregar el tag
         with open(file,"wb") as file_in:
             file_in.write(data)
         return True
