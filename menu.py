@@ -1,5 +1,5 @@
 import gral as g
-from gral import encoding
+from gral import encoding,input_timeout
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import encryptionFwk as c
@@ -7,6 +7,7 @@ import userInfo as u
 from userInfo import addUser
 from userInfo import User
 import os
+
 
 def showMenu( user: User ) -> bool:
     #g.cls()
@@ -16,7 +17,7 @@ def showMenu( user: User ) -> bool:
     print(" 1. Encriptar Archivo")
     print(" 2. Desencriptar Archivo")
     print(" 3. Agregar Nuevo Usuario")
-    action = input()
+    action = input_timeout(5)
     if action == "":
         return True
     function2Perfom(int(action))(user)
@@ -29,7 +30,7 @@ def function2Perfom( index: int ):
         3 :newUser,
     }
     return switch.get(index,False)
-    
+
 # TODO: que se puede encriptar un .txt
 def encryptFile( user: u.User ):
     g.cls()
