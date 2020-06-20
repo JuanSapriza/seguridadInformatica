@@ -51,7 +51,7 @@ def authorization() -> (User, bool) :
         userName = input("Nombre de Usuario: ")
         if userName == "":
             retriesLogic(True)
-            popUp("> Abortado!")
+            popUp("> Cerrando!")
             return None, False
         userPos = sFile.find(userName.encode(encoding))
 
@@ -111,11 +111,23 @@ def addUser():
     print(" #### NUEVO USUARIO ####")
 
     role = input("Ingrese el Rol: ")
-    # @ToDo: chequear que el rol exista
 
-    userName = input("Ingrese el nombre de usuario: ")
-    # @ToDo: chequear que el nombre de usuario no exista ya!
-
+    while True:
+        invalid = False
+        userName = input("Ingrese el nombre de usuario: ")
+        # chequear que el nombre de usuario no exista ya!
+        i = 0
+        while True:
+            [uName,*_, uLast] = getUserListLine(i)
+            i += 1
+            if uName == userName:
+                invalid = True
+                popUp("> El nombre de usuario ya existe!")
+                break
+            if uLast:
+                break
+        if not invalid:
+            break
     # Ingreso de Contraseña
     while True:
         password = getpass.getpass("Ingrese contraseña: ")

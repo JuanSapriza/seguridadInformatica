@@ -6,6 +6,10 @@ from gral import popUp
 
 # COMMIT: SE PUEDE COMPARTIR UN ARCHIVO QUE HAYA SIDO YA ENCRIPTADO
 
+# ToDo agregar claves por roles y que se pueda compartir tambien con los miembros de un rol
+
+
+
 print(" #### INICIANDO SISTEMA ####")
 u.generateTable()
 g.cls()
@@ -20,7 +24,7 @@ while True:
     # CARGAR LA INFORMACION DEL USUARIO QUE ACABA DE INGRESAR
     user = u.getInfoFromUserFile( user )
     if user is None:
-        popUp("> MANEJAR ERROR, NO SE PUDO CARGAR LA INFO DEL USUARIO")
+        popUp(">  NO SE PUDO CARGAR LA INFO DEL USUARIO")
         quit()
 
     # MENU PPAL

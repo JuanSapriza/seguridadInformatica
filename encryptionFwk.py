@@ -17,7 +17,7 @@ def encryptFile( file: str, key: bytes) -> bool:
     try:
         with open(file, "rb") as file_in:
             cipher = AES.new(key, AES.MODE_EAX)
-            ciphertext, tag = cipher.encrypt_and_digest(file_in.read())  # @ToDo: Considerar utilizar MAC tag
+            ciphertext, tag = cipher.encrypt_and_digest(file_in.read())
         with open(file, "wb") as file_in:
             [file_in.write(x) for x in (cipher.nonce, tag, ciphertext)]
             return True
@@ -30,7 +30,7 @@ def decryptFile( file: str, key: bytes ) -> bool:
         with open(file,"rb") as file_in:
             nonce, tag, ciphertext = [file_in.read(x) for x in (16, 16, -1)]
         cipher = AES.new( key, AES.MODE_EAX, nonce )
-        data = cipher.decrypt(ciphertext)
+        data = cipher.decrypt(ciphertext, tag)
         with open(file,"wb") as file_in:
             file_in.write(data)
         return True
