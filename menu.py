@@ -1,11 +1,12 @@
 import gral as g
-from gral import popUp
+from gral import popUp,input_timeout
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import encryptionFwk as c
 import userInfo as u
 from userInfo import addUser, User
 import glob, os
+
 
 def showMenu( user: User ) -> bool:
     g.cls()
@@ -16,7 +17,8 @@ def showMenu( user: User ) -> bool:
     print(" 2. Desencriptar Archivo")
     print(" 3. Agregar Nuevo Usuario")
     print(" 4. Compartir archivo")
-    action = input()
+    action = input_timeout(30)
+
     if action == "":
         return True
     f = function2Perfom(int(action))
