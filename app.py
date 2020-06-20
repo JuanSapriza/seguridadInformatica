@@ -3,17 +3,7 @@ import menu as m
 import gral as g
 
 
-'''
-
-import encryptionFwk as cript
-
-g.pause()
-cript.encryptFile('ml_info.bin', cript.deriveAESkey("hola","chau"))
-g.pause()
-cript.decryptFile('ml_info.bin',cript.deriveAESkey("hola","chau"))
-
-'''
-
+# COMMIT: SE PUEDEN ENCRIPTAR, COMPARTIR (AL MOMENTO DE COMPARTIR) Y DESENCRIPTAR
 
 print(" #### INICIANDO SISTEMA ####")
 u.generateTable()
@@ -38,4 +28,3 @@ g.cls()
 
 print( " CHAU :D ")
 
-#'''
