@@ -3,8 +3,7 @@ from Crypto.Random import random as rdm
 import encryptionFwk as c
 import os
 import getpass
-import gral as g
-from gral import encoding
+from gral import encoding, popUp
 
 # USER LIST
 userList = "users.bin"
@@ -52,12 +51,12 @@ def authorization() -> (User, bool) :
         userName = input("Nombre de Usuario: ")
         if userName == "":
             retriesLogic(True)
-            print("> Abortado!")
+            popUp("> Abortado!")
             return None, False
         userPos = sFile.find(userName.encode(encoding))
 
         if userPos < 0 or sFile[userPos-len(prefixUserName):userPos] != prefixUserName:
-            print("> Usuario no existe!")
+            popUp("> Usuario no existe!")
             continue
 
         # Obtener contraseña y chequearla
@@ -65,7 +64,7 @@ def authorization() -> (User, bool) :
             inPsw = getpass.getpass(prompt="Contraseña: ")
             if inPsw == "":
                 retriesLogic(True)
-                print("> Abortado!")
+                popUp("> Abortado!")
                 return None, False
             inPsw = inPsw.encode(encoding)
             # OBTENER EL SALT
@@ -80,7 +79,7 @@ def authorization() -> (User, bool) :
             storedPsw = sFile[storedPswStart:storedPswEnd]
             # COMPARAR PSWs
             if hashedPsw == storedPsw:
-                print("ACCESO GARANTIZADO")
+                popUp("ACCESO GARANTIZADO")
                 retriesLogic(True)
                 # OBTENER EL INDICE DEL USUARIO
                 indexStart = sFile.find(prefixIndex,userPos) + len(prefixIndex)
@@ -90,7 +89,7 @@ def authorization() -> (User, bool) :
                 user = User(userName=userName, AESkey=c.deriveAESkey(str(inPsw.decode(encoding)), str(salt)), index=index)
                 return user, True
             else:
-                print("> Contraseña incorrecta!")
+                popUp("> Contraseña incorrecta!") #ToDo revisar que no se borre el nombre de usuario cuando le erro de contrasena
         print("ACCESO DENEGADO")
         return None, False
 
@@ -122,13 +121,13 @@ def addUser():
         password = getpass.getpass("Ingrese contraseña: ")
         password2 = getpass.getpass("Reingrese contraseña: ")
         if password != password2:
-            print(" > Contraseñas no coinciden!")
+            popUp(" > Contraseñas no coinciden!") #ToDo revisar que no se borre el nombre de usuario cuando le erro de contrasena
             continue
         checkMsg = pswRequisites(password)
         if checkMsg == True:
             break
         else:
-            print(checkMsg)
+            popUp(checkMsg)
 
     print("GENERANDO USUARIO...")
     generateUser(userName, password, role)
@@ -272,8 +271,9 @@ def pswRequisites(psw: str):
             break
     if not check:
         return "Debe tener al menos 1 número"
+    # ToDo Implementar!
     '''
-    # algun caracter especial
+    # algun caracter especial 
     check = False
     for char in range(len(psw)):
         if char(0x21) <= psw[char] <= char(0x2F):
