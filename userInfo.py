@@ -119,15 +119,15 @@ def addUser():
     # Ingreso de Contraseña
     while True:
         password = getpass.getpass("Ingrese contraseña: ")
-        password2 = getpass.getpass("Reingrese contraseña: ")
-        if password != password2:
-            popUp(" > Contraseñas no coinciden!") #ToDo revisar que no se borre el nombre de usuario cuando le erro de contrasena
-            continue
         checkMsg = pswRequisites(password)
         if checkMsg == True:
+            password2 = getpass.getpass("Reingrese contraseña: ")
+            if password != password2:
+                popUp(" > Contraseñas no coinciden!") #ToDo revisar que no se borre el nombre de usuario cuando le erro de contrasena
+                continue
             break
         else:
-            popUp(checkMsg)
+            popUp(checkMsg)                
 
     print("GENERANDO USUARIO...")
     generateUser(userName, password, role)
@@ -273,7 +273,7 @@ def pswRequisites(psw: str):
         return "Debe tener al menos 1 número"
     # ToDo Implementar!
     '''
-    # algun caracter especial 
+    # algun caracter especial
     check = False
     for char in range(len(psw)):
         if char(0x21) <= psw[char] <= char(0x2F):
@@ -303,5 +303,3 @@ def retriesLogic(reset: bool):
         retriesLogic.count = 0
         return False
     return True
-
-

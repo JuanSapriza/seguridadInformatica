@@ -21,6 +21,7 @@ def input_timeout(timeout : int) -> str:
     global timeout_state
     timeout_state = False
     ans = input("Tiempo máximo de respuesta {} segundos." .format(timeout))
+    timer.cancel()
     if timeout_state == True:
         ans = ""
     return ans

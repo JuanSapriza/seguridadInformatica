@@ -17,7 +17,7 @@ def showMenu( user: User ) -> bool:
     print(" 2. Desencriptar Archivo")
     print(" 3. Agregar Nuevo Usuario")
     print(" 4. Compartir archivo")
-    action = input_timeout(5)
+    action = input_timeout(30)
 
     if action == "":
         return True
