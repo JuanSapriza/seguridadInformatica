@@ -56,7 +56,7 @@ def authorization() -> (User, bool) :
             return None, False
         userStart = sFile.find(userName.encode(encoding))
 
-        incomplete = sFile[ userStart : sFile.find( userListOrder[userListOrder.index(prefixUserName)+1])].decode(encoding) != userName
+        incomplete = sFile[ userStart : sFile.find( userListOrder[userListOrder.index(prefixUserName)+1], userStart)].decode(encoding) != userName
 
         # Si no hubo match  o el match se dio en un lugar que no es un nombre    El nombre ingresado es exactamente to do el nombre que hay guardado
         if userStart < 0 or sFile[userStart-len(prefixUserName):userStart] != prefixUserName or incomplete:
