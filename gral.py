@@ -14,13 +14,12 @@ def timeout_handler():
     return
 
 def input_timeout(timeout : int) -> str:
-    #signal.signal(signal.SIGALRM, timeout_handler)
-    #signal.alarm(timeout)
+    global timeout_state
     timer = t.Timer(timeout, timeout_handler)
     timer.start()
-    global timeout_state
     timeout_state = False
-    ans = input("Tiempo máximo de respuesta {} segundos." .format(timeout))
+    ans = input("Tiempo máximo de respuesta {} segundos: " .format(timeout))
+    timer.cancel()
     if timeout_state == True:
         ans = ""
     return ans

@@ -4,6 +4,7 @@ import encryptionFwk as c
 import os
 import getpass
 from gral import encoding, popUp
+import gral as g
 
 # USER LIST
 userList = "users.bin"
@@ -53,9 +54,12 @@ def authorization() -> (User, bool) :
             retriesLogic(True)
             popUp("> Cerrando!")
             return None, False
-        userPos = sFile.find(userName.encode(encoding))
+        userStart = sFile.find(userName.encode(encoding))
 
-        if userPos < 0 or sFile[userPos-len(prefixUserName):userPos] != prefixUserName:
+        incomplete = sFile[ userStart : sFile.find( userListOrder[userListOrder.index(prefixUserName)+1])].decode(encoding) != userName
+
+        # Si no hubo match  o el match se dio en un lugar que no es un nombre    El nombre ingresado es exactamente to do el nombre que hay guardado
+        if userStart < 0 or sFile[userStart-len(prefixUserName):userStart] != prefixUserName or incomplete:
             popUp("> Usuario no existe!")
             continue
 
@@ -68,13 +72,13 @@ def authorization() -> (User, bool) :
                 return None, False
             inPsw = inPsw.encode(encoding)
             # OBTENER EL SALT
-            saltStart = sFile.find(prefixSalt, userPos) + len(prefixSalt)
+            saltStart = sFile.find(prefixSalt, userStart) + len(prefixSalt)
             saltEnd = sFile.find(userListOrder[userListOrder.index(prefixSalt)+1],saltStart)
             salt = sFile[saltStart:saltEnd]
             # SALTEAR Y HASHEAR LA PSW INGRESADA
             hashedPsw = c.hashPsw( inPsw, salt)
             # OBTENER LA PSW
-            storedPswStart = sFile.find(prefixPassWord, userPos) + len(prefixPassWord)
+            storedPswStart = sFile.find(prefixPassWord, userStart) + len(prefixPassWord)
             storedPswEnd = sFile.find(userListOrder[userListOrder.index(prefixPassWord)+1],storedPswStart)
             storedPsw = sFile[storedPswStart:storedPswEnd]
             # COMPARAR PSWs
@@ -82,7 +86,7 @@ def authorization() -> (User, bool) :
                 popUp("ACCESO GARANTIZADO")
                 retriesLogic(True)
                 # OBTENER EL INDICE DEL USUARIO
-                indexStart = sFile.find(prefixIndex,userPos) + len(prefixIndex)
+                indexStart = sFile.find(prefixIndex,userStart) + len(prefixIndex)
                 indexEnd = sFile.find(userListOrder[userListOrder.index(prefixIndex)+1],indexStart)
                 index = int.from_bytes(sFile[indexStart:indexEnd],'big')
                 # CREAR EL USUARIO PARA DEVOLVER
@@ -93,8 +97,6 @@ def authorization() -> (User, bool) :
         print("ACCESO DENEGADO")
         return None, False
 
-
-
 ############## LISTA DE USUARIOS  ##############
 
 # En caso de que no haya una tabla, crearla
@@ -104,7 +106,7 @@ def generateTable():
         file_in.close()
     except FileNotFoundError:  # es la primera vez que se ejecuta
         open(userList, "wb").close()
-        generateUser("ml", "mp", "MAdmin")
+        addUser()
 
 # Solicitar al usuario su informacion
 def addUser():
@@ -231,6 +233,7 @@ def getUserFileAddr(user: User) -> str:
 def getuserArchivesAddr( user: User ) -> str:
     return getUserAddr(user) + "archivos/"
 
+# ToDo agergar una carpeta de Usuarios
 # Dado un usuario, devuelve el rol y clave privada, almacenado en su archivo personal
 def getInfoFromUserFile( user: User ) -> User:
     userFile = getUserFileAddr( user )
@@ -255,7 +258,7 @@ def getInfoFromUserFile( user: User ) -> User:
 
 ############## CONTROL DE CONTRASEÑAS #############
 
-def pswRequisites(psw: str):
+def pswRequisites(psw: str): # ToDo Agregar control de usuario
     # largo minimo
     if len(psw) < 10:
         return "Debe tener al menos 10 caracteres"

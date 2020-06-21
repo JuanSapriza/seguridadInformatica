@@ -4,7 +4,7 @@ import gral as g
 from gral import popUp
 
 
-# COMMIT: SE PUEDE COMPARTIR UN ARCHIVO QUE HAYA SIDO YA ENCRIPTADO
+# COMMIT: CORREGIDO QUE PERMITA INGRESAR NOMBRES DE USUARIOS QUE SON UNA SECCION DEL NOMBRE
 
 # ToDo agregar claves por roles y que se pueda compartir tambien con los miembros de un rol
 

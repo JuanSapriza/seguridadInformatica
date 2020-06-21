@@ -17,7 +17,7 @@ def showMenu( user: User ) -> bool:
     print(" 2. Desencriptar Archivo")
     print(" 3. Agregar Nuevo Usuario")
     print(" 4. Compartir archivo")
-    action = input_timeout(5)
+    action = input_timeout(30)
 
     if action == "":
         return True
@@ -67,9 +67,8 @@ def encryptFile( user: u.User ):
     with open(getEncryptedKeyAddr(user, fileName), 'wb') as outFile:
         outFile.write(encryptedKey)
 
-    encryptKey4Share(user,fileKey,fileName)
-
-    popUp("> Transferencia realizada!")
+    if encryptKey4Share(user,fileKey,fileName):
+        popUp("> Transferencia realizada!")
     return
 
 def decryptFile(user: User):
@@ -184,12 +183,13 @@ def selectAddressees(user: User):
         return []
     return dest
 
-def encryptKey4Share(user: User, fileKey, fileName):
+def encryptKey4Share(user: User, fileKey, fileName) -> bool:
     dest = selectAddressees(user)
     if not dest:
-        return
+        return False
     for addressee in dest:
         encryptWithPublic(addressee, fileKey,fileName)
+    return True
 
 def decryptKeyFromAddr(user: User, address):
     with open(address, 'rb') as encryptedKeyFile:
