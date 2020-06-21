@@ -4,8 +4,10 @@ from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import encryptionFwk as c
 import userInfo as u
-from userInfo import addUser, User
+from userInfo import addUser, User, psw_validate,retriesLogic
 import glob, os
+import getpass
+
 
 
 def showMenu( user: User ) -> bool:
@@ -35,7 +37,7 @@ def function2Perfom( index: int ):
         1 :encryptFile,
         2 :decryptFile,
         3 :newUser,
-        4: shareFile,
+        4 :shareFile,
     }
     return switch.get(index,False)
 
@@ -50,9 +52,9 @@ def encryptFile( user: u.User ):
     root.destroy()
     if fileDir == "":
         return
+
     print("> Encriptando: " +fileDir)
     fileName = fileDir[fileDir.rfind("/")+1:]
-
     # ENCRIPTAR EL ARCHIVO CON UNA CLAVE ALEATORIA
     fileKey = c.getRandomAESKey()
     c.encryptFile( fileDir, fileKey )
@@ -60,7 +62,6 @@ def encryptFile( user: u.User ):
     # GENERAR EL ARCHIVO CON LA CLAVE SIMETRICA ENCRIPTADA CON MI PUBLICA
     ownPublicKey = u.getUserListLine( user.index)[2]
     encryptedKey = c.encryptKey( fileKey, ownPublicKey )
-
     print("> Archivo encriptado exitosamente!")
 
     # GUARDAR UNA COPIA DEL ARCHIVO CIFRADA CON LA CLAVE PUBLICA DEL AUTOR
@@ -70,6 +71,9 @@ def encryptFile( user: u.User ):
     if encryptKey4Share(user,fileKey,fileName):
         popUp("> Transferencia realizada!")
     return
+
+
+
 
 def decryptFile(user: User):
     g.cls()
@@ -187,6 +191,21 @@ def encryptKey4Share(user: User, fileKey, fileName) -> bool:
     dest = selectAddressees(user)
     if not dest:
         return False
+
+    print("Para encriptar un archivo debe reingresar su contraseña.")
+    while True:
+        inPsw = getpass.getpass(prompt="Contraseña: ")
+        if inPsw == "":
+            retriesLogic(True)
+            popUp("> Abortado!")
+            return False
+        valid = psw_validate(user.userName,inPsw)[0]
+        if valid:
+            retriesLogic(True)
+            break
+        elif retriesLogic(False):
+            return False
+
     for addressee in dest:
         encryptWithPublic(addressee, fileKey,fileName)
     return True

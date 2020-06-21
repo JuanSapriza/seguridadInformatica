@@ -72,32 +72,42 @@ def authorization() -> (User, bool) :
                 retriesLogic(True)
                 popUp("> Abortado!")
                 return None, False
-            inPsw = inPsw.encode(encoding)
-            # OBTENER EL SALT
-            saltStart = sFile.find(prefixSalt, userStart) + len(prefixSalt)
-            saltEnd = sFile.find(userListOrder[userListOrder.index(prefixSalt)+1],saltStart)
-            salt = sFile[saltStart:saltEnd]
-            # SALTEAR Y HASHEAR LA PSW INGRESADA
-            hashedPsw = c.hashPsw( inPsw, salt)
-            # OBTENER LA PSW
-            storedPswStart = sFile.find(prefixPassWord, userStart) + len(prefixPassWord)
-            storedPswEnd = sFile.find(userListOrder[userListOrder.index(prefixPassWord)+1],storedPswStart)
-            storedPsw = sFile[storedPswStart:storedPswEnd]
-            # COMPARAR PSWs
-            if hashedPsw == storedPsw:
-                popUp("ACCESO GARANTIZADO")
-                retriesLogic(True)
+            valid, salt = psw_validate(userName,inPsw)
+            if valid:
                 # OBTENER EL INDICE DEL USUARIO
                 indexStart = sFile.find(prefixIndex,userStart) + len(prefixIndex)
                 indexEnd = sFile.find(userListOrder[userListOrder.index(prefixIndex)+1],indexStart)
                 index = int.from_bytes(sFile[indexStart:indexEnd],'big')
                 # CREAR EL USUARIO PARA DEVOLVER
-                user = User(userName=userName, AESkey=c.deriveAESkey(str(inPsw.decode(encoding)), str(salt)), index=index)
+                user = User(userName=userName, AESkey=c.deriveAESkey(str(inPsw), str(salt)), index=index)
                 return user, True
-            else:
-                popUp("> Contraseña incorrecta!") #ToDo revisar que no se borre el nombre de usuario cuando le erro de contrasena
         print("ACCESO DENEGADO")
         return None, False
+
+def psw_validate(userName: str, inPsw: str) -> bool:
+
+    with  open(userList, 'rb') as inFile:
+        sFile = inFile.read()
+    inPsw = inPsw.encode(encoding)
+    userStart = sFile.find(userName.encode(encoding))
+    # OBTENER EL SALT
+    saltStart = sFile.find(prefixSalt, userStart) + len(prefixSalt)
+    saltEnd = sFile.find(userListOrder[userListOrder.index(prefixSalt)+1],saltStart)
+    salt = sFile[saltStart:saltEnd]
+    # SALTEAR Y HASHEAR LA PSW INGRESADA
+    hashedPsw = c.hashPsw( inPsw, salt)
+    # OBTENER LA PSW
+    storedPswStart = sFile.find(prefixPassWord, userStart) + len(prefixPassWord)
+    storedPswEnd = sFile.find(userListOrder[userListOrder.index(prefixPassWord)+1],storedPswStart)
+    storedPsw = sFile[storedPswStart:storedPswEnd]
+    # COMPARAR PSWs
+    if hashedPsw == storedPsw:
+        popUp("> Contraseña correcta!")
+        retriesLogic(True)
+        return True, salt
+    else:
+        print("> Contraseña incorrecta!")
+        return False, None
 
 ############## LISTA DE USUARIOS  ##############
 
@@ -142,11 +152,11 @@ def addUser(firstUser: bool=False):
         if checkMsg == True:
             password2 = getpass.getpass("Reingrese contraseña: ")
             if password != password2:
-                popUp(" > Contraseñas no coinciden!") #ToDo revisar que no se borre el nombre de usuario cuando le erro de contrasena
+                print(" > Contraseñas no coinciden!")
                 continue
             break
         else:
-            popUp(checkMsg)                
+            popUp(checkMsg)
 
     print("GENERANDO USUARIO...")
     generateUser(userName, password, role)
