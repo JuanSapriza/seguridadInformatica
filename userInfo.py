@@ -260,7 +260,7 @@ def getInfoFromUserFile( user: User ) -> User:
 
 ############## CONTROL DE CONTRASEÑAS #############
 
-def pswRequisites(psw: str): # ToDo Agregar control de usuario
+def pswRequisites(psw: str):
     # largo minimo
     if len(psw) < 10:
         return "Debe tener al menos 10 caracteres"
