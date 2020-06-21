@@ -4,6 +4,8 @@ from Crypto.Protocol.KDF import scrypt
 from Crypto.Random import get_random_bytes
 import gral as g
 
+mode = AES.MODE_GCM
+
 sha3 = 0
 blake2 = 1
 hashingAlgorith = sha3
@@ -16,26 +18,26 @@ elif hashingAlgorith == sha3 :
 def encryptFile( file: str, key: bytes) -> bool:
     try:
         with open(file, "rb") as file_in:
-            cipher = AES.new(key, AES.MODE_EAX)
+            cipher = AES.new(key, mode)
             ciphertext, tag = cipher.encrypt_and_digest(file_in.read())
         with open(file, "wb") as file_in:
             [file_in.write(x) for x in (cipher.nonce, tag, ciphertext)]
             return True
     except PermissionError:
-        print("> Acceso denegado por el SO")
+        print(" > Acceso denegado por el SO")
         return False
 
 def decryptFile( file: str, key: bytes ) -> bool:
     try:
         with open(file,"rb") as file_in:
             nonce, tag, ciphertext = [file_in.read(x) for x in (16, 16, -1)]
-        cipher = AES.new( key, AES.MODE_EAX, nonce )
+        cipher = AES.new( key, mode, nonce )
         data = cipher.decrypt(ciphertext) # ToDo considerar agregar el tag
         with open(file,"wb") as file_in:
             file_in.write(data)
         return True
     except PermissionError:
-        print("> Acceso denegado por el SO")
+        print(" > Acceso denegado por el SO")
         return False
 
 def copyDecryptedAndDecoded( file: str, key: bytes ) -> str:
