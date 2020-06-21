@@ -4,7 +4,7 @@ import gral as g
 from gral import popUp
 
 
-# COMMIT: Archivos de usuario en una misma carpeta
+# COMMIT: Corregido bug a la hora de ingresar un nuevo usuario
 
 # ToDo agregar claves por roles y que se pueda compartir tambien con los miembros de un rol
 

@@ -5,6 +5,7 @@ import os
 import getpass
 from gral import encoding, popUp
 import gral as g
+from string import ascii_letters, digits
 
 # USER LIST
 filesDir = "Usuarios/"
@@ -64,13 +65,12 @@ def authorization() -> (User, bool) :
         if userStart < 0 or sFile[userStart-len(prefixUserName):userStart] != prefixUserName or incomplete:
             popUp("> Usuario no existe!")
             continue
-
         # Obtener contraseña y chequearla
         while retriesLogic(False):
             inPsw = getpass.getpass(prompt="Contraseña: ")
             if inPsw == "":
                 retriesLogic(True)
-                popUp("> Abortado!")
+                popUp("> Cerrando!")
                 return None, False
             inPsw = inPsw.encode(encoding)
             # OBTENER EL SALT
@@ -123,7 +123,7 @@ def addUser(firstUser: bool=False):
         # chequear que el nombre de usuario no exista ya!
         if firstUser:
             break
-        i = 0
+        i = 1
         while True:
             [uName,*_, uLast] = getUserListLine(i)
             i += 1
@@ -288,17 +288,9 @@ def pswRequisites(psw: str):
             break
     if not check:
         return "Debe tener al menos 1 número"
-    # ToDo Implementar!
-    '''
     # algun caracter especial
-    check = False
-    for char in range(len(psw)):
-        if char(0x21) <= psw[char] <= char(0x2F):
-            check = True
-            break
-    if not check:
-        return False
-    '''
+    if not set(psw).difference(ascii_letters + digits):
+        return "Debe tener al menos 1 caracter especial"
     # Al menos 5 caracteres distintos
     chars = []
     for char in psw:
