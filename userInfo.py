@@ -7,7 +7,9 @@ from gral import encoding, popUp
 import gral as g
 
 # USER LIST
-userList = "users.bin"
+filesDir = "Usuarios/"
+userListName = "users.bin"
+userList = filesDir + userListName
 prefixIndex = b"<IX>"
 prefixUserName = b"<UN>"
 prefixSalt = b"<ST>"
@@ -105,11 +107,12 @@ def generateTable():
         file_in = open(userList, "rb")
         file_in.close()
     except FileNotFoundError:  # es la primera vez que se ejecuta
+        os.makedirs(os.path.dirname(filesDir), exist_ok=True)
         open(userList, "wb").close()
-        addUser()
+        addUser(True)
 
 # Solicitar al usuario su informacion
-def addUser():
+def addUser(firstUser: bool=False):
     print(" #### NUEVO USUARIO ####")
 
     role = input("Ingrese el Rol: ")
@@ -118,6 +121,8 @@ def addUser():
         invalid = False
         userName = input("Ingrese el nombre de usuario: ")
         # chequear que el nombre de usuario no exista ya!
+        if firstUser:
+            break
         i = 0
         while True:
             [uName,*_, uLast] = getUserListLine(i)
@@ -211,8 +216,6 @@ def getUserListLine( index: int ) -> (str, str, bytes, bool):
 
     return userName, role, public, lastUser
 
-
-
 ############# ARCHIVO PARTICULAR DE CADA USUARIO: #############
 
 # INDICE, NOMBRE, ROL Y CLAVE PRIVADA
@@ -224,7 +227,7 @@ def getUserInfo(user: User) -> bytes:
 
 # Direccion donde se pueden almacenar archivos para el usuario
 def getUserAddr(user: User) -> str:
-    return user.userName + "/"
+    return filesDir + user.userName + "/"
 
 # Direccion y nombre del archivo personal del usuario
 def getUserFileAddr(user: User) -> str:
@@ -233,7 +236,6 @@ def getUserFileAddr(user: User) -> str:
 def getuserArchivesAddr( user: User ) -> str:
     return getUserAddr(user) + "archivos/"
 
-# ToDo agergar una carpeta de Usuarios
 # Dado un usuario, devuelve el rol y clave privada, almacenado en su archivo personal
 def getInfoFromUserFile( user: User ) -> User:
     userFile = getUserFileAddr( user )

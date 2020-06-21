@@ -4,7 +4,7 @@ import gral as g
 from gral import popUp
 
 
-# COMMIT: Para que lo decriptes
+# COMMIT: Archivos de usuario en una misma carpeta
 
 # ToDo agregar claves por roles y que se pueda compartir tambien con los miembros de un rol
 
