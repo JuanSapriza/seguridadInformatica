@@ -4,7 +4,7 @@ import gral as g
 from gral import popUp
 
 
-# COMMIT: CORREGIDO PEQUENO BUG!
+# COMMIT: Para que lo decriptes
 
 # ToDo agregar claves por roles y que se pueda compartir tambien con los miembros de un rol
 
