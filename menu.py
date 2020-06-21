@@ -12,13 +12,13 @@ import getpass
 
 def showMenu( user: User ) -> bool:
     g.cls()
-    print( "#### MENU PRINCIPAL ####" )
-    print("Usuario: " + str(user.index) +" > " + user.userName + " | " + str(user.role) )
-    print("   ¿Qué desea hacer? ")
-    print(" 1. Encriptar Archivo")
-    print(" 2. Desencriptar Archivo")
-    print(" 3. Agregar Nuevo Usuario")
-    print(" 4. Compartir archivo")
+    print( "  #### MENU PRINCIPAL ####" )
+    print(" Usuario: " + str(user.index) +" > " + user.userName + " | " + str(user.role) )
+    print("    ¿Qué desea hacer? ")
+    print("  1. Encriptar Archivo")
+    print("  2. Desencriptar Archivo")
+    print("  3. Agregar Nuevo Usuario")
+    print("  4. Compartir archivo")
     action = input_timeout(30)
 
     if action == "":
@@ -41,9 +41,9 @@ def function2Perfom( index: int ):
     }
     return switch.get(index,False)
 
-def encryptFile( user: u.User ):
+def encryptFile( user: User ):
     g.cls()
-    print(" #### ENCRIPTAR ARCHIVO ####")
+    print("  #### ENCRIPTAR ARCHIVO ####")
     # OBTENCION DEL ARCHIVO A ENCRIPTAR
     root = Tk()
     root.iconbitmap(r'logoUcu.ico')
@@ -52,9 +52,9 @@ def encryptFile( user: u.User ):
     root.destroy()
     if fileDir == "":
         return
-
-    print("> Encriptando: " +fileDir)
+    print(" > Encriptando: " +fileDir)
     fileName = fileDir[fileDir.rfind("/")+1:]
+
     # ENCRIPTAR EL ARCHIVO CON UNA CLAVE ALEATORIA
     fileKey = c.getRandomAESKey()
     c.encryptFile( fileDir, fileKey )
@@ -62,22 +62,20 @@ def encryptFile( user: u.User ):
     # GENERAR EL ARCHIVO CON LA CLAVE SIMETRICA ENCRIPTADA CON MI PUBLICA
     ownPublicKey = u.getUserListLine( user.index)[2]
     encryptedKey = c.encryptKey( fileKey, ownPublicKey )
-    print("> Archivo encriptado exitosamente!")
+
+    print(" > Archivo encriptado exitosamente!")
 
     # GUARDAR UNA COPIA DEL ARCHIVO CIFRADA CON LA CLAVE PUBLICA DEL AUTOR
     with open(getEncryptedKeyAddr(user, fileName), 'wb') as outFile:
         outFile.write(encryptedKey)
 
     if encryptKey4Share(user,fileKey,fileName):
-        popUp("> Transferencia realizada!")
+        popUp(" > Transferencia realizada exitosamente!")
     return
-
-
-
 
 def decryptFile(user: User):
     g.cls()
-    print(" #### DESENCRIPTAR ARCHIVO ####")
+    print("  #### DESENCRIPTAR ARCHIVO ####")
     # OBTENCION DEL ARCHIVO A DESENCRIPTAR
     root = Tk()
     root.iconbitmap(r'logoUcu.ico')
@@ -86,7 +84,7 @@ def decryptFile(user: User):
     root.destroy()
     if fileDir == "":
         return
-    print("> Desencriptando: " +fileDir)
+    print(" > Desencriptando: " +fileDir)
     fileName = fileDir[fileDir.rfind("/")+1:]
 
     oldWd = os.getcwd() # Respaldar el working directory para reestablecerlo luego
@@ -99,7 +97,7 @@ def decryptFile(user: User):
             break
     os.chdir(oldWd)  # Se devuelve el WD al oroginal
     if encryptedKeyFileName is False:
-        popUp("> NO ES POSIBLE DESENCRIPTAR EL ARCHIVO" )
+        popUp(" > NO ES POSIBLE DESENCRIPTAR EL ARCHIVO" )
         return
 
     # DESENCRIPTAR LA CLAVE
@@ -107,7 +105,7 @@ def decryptFile(user: User):
 
     # DESENCRIPTAR EL ARCHIVO
     c.decryptFile(fileDir,decryptedKey)
-    popUp("> Archivo desencriptado exitosamente")
+    popUp(" > Archivo desencriptado exitosamente")
 
     os.chdir(oldWd) # Se devuelve el WD al oroginal
     return
@@ -117,14 +115,14 @@ def newUser(user: User):  # toma un parametro solo por compatibilidad
     return
 
 def shareFile(user: User):
-    print("#### COMPARTIR ARCHIVO ####")
+    print(" #### COMPARTIR ARCHIVO ####")
 
     # ELEGIR ARCHIVO A COMPARTIR
     oldWd = os.getcwd()  # Respaldar el working directory para reestablecerlo luego
     os.chdir(u.getuserArchivesAddr(
         user))  # se cambia el working directory para trabajar mas facil con los archivos del usuario
     # Obtener el nombre de cada archivo del cual tengo la clave
-    print("Seleccione el archivo a compartir")
+    print(" Seleccione el archivo a compartir")
     files = []
     i = 1
     for file in glob.glob("*.bin"):
@@ -140,9 +138,8 @@ def shareFile(user: User):
     # DESENCRIPTAR LA CLAVE SIMETRICA DE ESE ARCHIVO, USANDO LA CLAVE PRIVADA DEL USUARIO
     decryptedKey = decryptKeyFromAddr(user, u.getuserArchivesAddr(user) + files[file2ShareIndex])
     # ELEGI DESTINATARIOS Y ENCRIPTARLES UNA COPIA DE LA CLAVE CON SU CLAVE PUBLICA
-    encryptKey4Share(user, decryptedKey, files[file2ShareIndex][len(user.userName)+1:])
-
-    popUp("> Transferencia realizada exitosamente!")
+    if encryptKey4Share(user, decryptedKey, files[file2ShareIndex][len(user.userName)+1:]):
+        popUp("> Transferencia realizada exitosamente!")
     return
 
 ######### FUNCIONES AUXILIARES ###############
@@ -157,54 +154,68 @@ def encryptWithPublic( user: User,key: bytes, fileName: bytes):
 
 def selectAddressees(user: User):
     # MOSTRAR LISTA DE USUARIOS PARA DARLES LA CLAVE
-    print("Seleccione Usuarios con los que compartir el archivo")
-    print("Para seleccionar varios usuarios, ingresar una lista separada por espacios")
+    print(" Seleccione Usuarios con los que compartir el archivo")
+    print(" Para seleccionar varios usuarios, ingresar una lista separada por espacios")
     i = 1
     validIndexes = []
     possibleUsers = []
+    # Mostrar la Lista de Usuarios
     while True:
         [uName, uRole, uPub, uLast] = u.getUserListLine(i)
         if i != user.index:
-            print(str(i) + ". " + uName + ": " + uRole)
+            print("  " + str(i) + ". " + uName + ": " + uRole)
             possibleUsers.append(User(userName=uName, role=uRole, public=uPub, index=i))
             validIndexes.append(i)
         i += 1
         if uLast:
             break
+    people = i
+    #Mostrar la lista de roles
+    print( " O seleccione un rol para compartirlo con todos sus miembros" )
+    roles = u.getRolesFromList()
+    for x in roles:
+        print("  "+str(i) + ". " + x)
+        validIndexes.append(i)
+        i += 1
+
     selection = input()
-    # Obtener los destinatarios
+    # Obtener los indices validos ingresados
     tempDest = [int(x) for x in selection.split() if x.isdigit()]  # Obtiene los numeros de lo que se haya ingresado
     if not tempDest:  # si no hay numeros, se va
         return
     tempIndexes = []
     dest = []
     [tempIndexes.append(x) for x in tempDest if x in validIndexes]
-    [dest.append(possibleUsers[x]) for x in range(len(possibleUsers)) if possibleUsers[x].index in tempIndexes]
+
+    for x in tempIndexes:
+        if x > people: #se trata de un indice correspondiente a un rol
+            others = u.getOtherUsersPerRole( user, roles[x-people] )
+            [dest.append(y) for y in others]
+
+
+    [dest.append(possibleUsers[x]) for x in range(len(possibleUsers)) if possibleUsers[x].index in tempIndexes and possibleUsers[x] not in dest ]
     print(" El archivo se compartirá con:")
     [print(dest[x].userName) for x in range(len(dest))]
-    print(" Para confirmar ingrese <ok>")  # ToDo solicitar la contrasena, en vez de ok
-    if "ok" not in input().lower():
-        return []
+
+    print(" Para compartir un archivo reingrese su contraseña.")
+    while True:
+        inPsw = getpass.getpass(prompt=" Contraseña: ")
+        if inPsw == "":
+            retriesLogic(True)
+            popUp(" > Abortado!")
+            return []
+        valid = psw_validate(user.userName, inPsw)[0]
+        if valid:
+            retriesLogic(True)
+            break
+        elif retriesLogic(False):
+            return []
     return dest
 
 def encryptKey4Share(user: User, fileKey, fileName) -> bool:
     dest = selectAddressees(user)
     if not dest:
         return False
-
-    print("Para encriptar un archivo debe reingresar su contraseña.")
-    while True:
-        inPsw = getpass.getpass(prompt="Contraseña: ")
-        if inPsw == "":
-            retriesLogic(True)
-            popUp("> Abortado!")
-            return False
-        valid = psw_validate(user.userName,inPsw)[0]
-        if valid:
-            retriesLogic(True)
-            break
-        elif retriesLogic(False):
-            return False
 
     for addressee in dest:
         encryptWithPublic(addressee, fileKey,fileName)

@@ -8,7 +8,7 @@ timeout_state = False
 
 def timeout_handler():
     cls()
-    print ("> Tiempo de sesion finalizado. Presione Enter para continuar")
+    print (" > Tiempo de sesion finalizado. Presione Enter para continuar")
     global timeout_state
     timeout_state = True
     return
@@ -18,7 +18,7 @@ def input_timeout(timeout : int) -> str:
     timer = t.Timer(timeout, timeout_handler)
     timer.start()
     timeout_state = False
-    ans = input("Tiempo máximo de respuesta {} segundos: " .format(timeout))
+    ans = input(" Tiempo máximo de respuesta {} segundos: " .format(timeout))
     timer.cancel()
     if timeout_state == True:
         ans = ""
