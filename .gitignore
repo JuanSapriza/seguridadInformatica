@@ -129,5 +129,3 @@ dmypy.json
 .pyre/
 
 # No subir tambien los binarios que usamos
-.bin
-*.bin
