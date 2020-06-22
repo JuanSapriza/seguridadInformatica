@@ -50,7 +50,6 @@ def copyDecryptedAndDecoded( file: str, key: bytes ) -> str:
 
 def deriveAESkey(psw: str, salt: str) -> bytes:
     return scrypt(psw, salt, max(AES.key_size),2**14,8,1)
-# https://pycryptodome.readthedocs.io/en/latest/src/protocol/kdf.html?highlight=pbk#Crypto.Protocol.KDF.PBKDF2
 
 def getRandomAESKey() -> bytes:
     return get_random_bytes( max(AES.key_size))
