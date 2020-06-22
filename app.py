@@ -4,10 +4,7 @@ import gral as g
 from gral import popUp
 
 
-# COMMIT: MERGE ENTRE LOS DISTINTOS CAMBIOS :D
-
-# ToDo agregar claves por roles y que se pueda compartir tambien con los miembros de un rol
-
+# COMMIT: VERSION FUNCIONAL
 
 
 print("  #### INICIANDO SISTEMA ####")

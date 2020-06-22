@@ -195,7 +195,7 @@ def selectAddressees(user: User):
 
     [dest.append(possibleUsers[x]) for x in range(len(possibleUsers)) if possibleUsers[x].index in tempIndexes and possibleUsers[x] not in dest ]
     print(" El archivo se compartirá con:")
-    [print(dest[x].userName) for x in range(len(dest))]
+    [print(" " + dest[x].userName) for x in range(len(dest))]
 
     print(" Para compartir un archivo reingrese su contraseña.")
     while True:
@@ -208,7 +208,8 @@ def selectAddressees(user: User):
         if valid:
             retriesLogic(True)
             break
-        elif retriesLogic(False):
+        elif not retriesLogic(False):
+            popUp(" > No es posible compartir el archivo!")
             return []
     return dest
 

@@ -3,9 +3,10 @@ from Crypto.Random import random as rdm
 import encryptionFwk as c
 import os
 import getpass
-from gral import encoding, popUp
+from gral import encoding, popUp, waitms
 import gral as g
 from string import ascii_letters, digits
+
 
 # USER LIST
 filesDir = "Usuarios/"
@@ -91,30 +92,7 @@ def authorization() -> (User, bool):
         print("ACCESO DENEGADO")
         return None, False
 
-def psw_validate(userName: str, inPsw: str) -> bool:
 
-    with  open(userList, 'rb') as inFile:
-        sFile = inFile.read()
-    inPsw = inPsw.encode(encoding)
-    userStart = sFile.find(userName.encode(encoding))
-    # OBTENER EL SALT
-    saltStart = sFile.find(prefixSalt, userStart) + len(prefixSalt)
-    saltEnd = sFile.find(userListOrder[userListOrder.index(prefixSalt)+1],saltStart)
-    salt = sFile[saltStart:saltEnd]
-    # SALTEAR Y HASHEAR LA PSW INGRESADA
-    hashedPsw = c.hashPsw( inPsw, salt)
-    # OBTENER LA PSW
-    storedPswStart = sFile.find(prefixPassWord, userStart) + len(prefixPassWord)
-    storedPswEnd = sFile.find(userListOrder[userListOrder.index(prefixPassWord)+1],storedPswStart)
-    storedPsw = sFile[storedPswStart:storedPswEnd]
-    # COMPARAR PSWs
-    if hashedPsw == storedPsw:
-        popUp("> Contraseña correcta!")
-        retriesLogic(True)
-        return True, salt
-    else:
-        print("> Contraseña incorrecta!")
-        return False, None
 
 
 ############## LISTA DE USUARIOS  ##############
@@ -161,11 +139,11 @@ def addUser(firstUser: bool = False):
         if checkMsg == True:
             password2 = getpass.getpass(" Reingrese contraseña: ")
             if password != password2:
-                popUp(" > Contraseñas no coinciden!")  # ToDo revisar que no se borre el nombre de usuario cuando le erro de contrasena
+                print(" > Contraseñas no coinciden!")
                 continue
             break
         else:
-            popUp(checkMsg)
+            print(checkMsg)
 
     print(" GENERANDO USUARIO...")
     generateUser(userName, password, role)
@@ -250,6 +228,7 @@ def getUserInfo(user: User) -> bytes:
  \
  \
 # Direccion donde se pueden almacenar archivos para el usuario
+
 def getUserAddr(user: User) -> str:
     return filesDir + user.userName + "/"
 
@@ -288,7 +267,7 @@ def getInfoFromUserFile(user: User) -> User:
 def pswRequisites(psw: str):
     # largo minimo
     if len(psw) < 10:
-        return "Debe tener al menos 10 caracteres"
+        return " Debe tener al menos 10 caracteres"
     # alguna mayuscula
     check = False
     for char in psw:
@@ -296,7 +275,7 @@ def pswRequisites(psw: str):
             check = True
             break
     if not check:
-        return "Debe tener al menos 1 mayúscula"
+        return " Debe tener al menos 1 mayúscula"
     # alguna minuscula
     check = False
     for char in psw:
@@ -304,7 +283,7 @@ def pswRequisites(psw: str):
             check = True
             break
     if not check:
-        return "Debe tener al menos 1 minúscula"
+        return " Debe tener al menos 1 minúscula"
     # algun numero
     check = False
     for char in psw:
@@ -312,17 +291,17 @@ def pswRequisites(psw: str):
             check = True
             break
     if not check:
-        return "Debe tener al menos 1 número"
+        return " Debe tener al menos 1 número"
     # algun caracter especial
     if not set(psw).difference(ascii_letters + digits):
-        return "Debe tener al menos 1 caracter especial"
+        return " Debe tener al menos 1 caracter especial"
     # Al menos 5 caracteres distintos
     chars = []
     for char in psw:
         if char not in chars:
             chars.append(char)
     if len(chars) < 5:
-        return "Debe tener al menos 5 caracteres distintos"
+        return " Debe tener al menos 5 caracteres distintos"
     return True
 
 
@@ -339,6 +318,30 @@ def retriesLogic(reset: bool):
         return False
     return True
 
+def psw_validate(userName: str, inPsw: str) -> bool:
+
+    with  open(userList, 'rb') as inFile:
+        sFile = inFile.read()
+    inPsw = inPsw.encode(encoding)
+    userStart = sFile.find(userName.encode(encoding))
+    # OBTENER EL SALT
+    saltStart = sFile.find(prefixSalt, userStart) + len(prefixSalt)
+    saltEnd = sFile.find(userListOrder[userListOrder.index(prefixSalt)+1],saltStart)
+    salt = sFile[saltStart:saltEnd]
+    # SALTEAR Y HASHEAR LA PSW INGRESADA
+    hashedPsw = c.hashPsw( inPsw, salt)
+    # OBTENER LA PSW
+    storedPswStart = sFile.find(prefixPassWord, userStart) + len(prefixPassWord)
+    storedPswEnd = sFile.find(userListOrder[userListOrder.index(prefixPassWord)+1],storedPswStart)
+    storedPsw = sFile[storedPswStart:storedPswEnd]
+    # COMPARAR PSWs
+    if hashedPsw == storedPsw:
+        popUp("> Contraseña correcta!")
+        retriesLogic(True)
+        return True, salt
+    else:
+        print("> Contraseña incorrecta!")
+        return False, None
 
 ############# MANEJO DE ROLES ###################
 
